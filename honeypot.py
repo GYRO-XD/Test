@@ -2,15 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-GYRO Honeypot
-A lightweight, Termux-friendly honeypot: fake services, connection logging,
-IP geolocation, and Telegram alerting - built for authorized defensive use
-on networks/devices you own or are explicitly permitted to monitor.
-
-Usage:
-    python honeypot.py                  # run with config.json defaults
-    python honeypot.py --config my.json # use a custom config
-    python honeypot.py --no-dashboard   # headless mode (good for nohup/tmux)
+GYRO Honeypot - Premium Version
 """
 
 import argparse
@@ -35,7 +27,7 @@ BANNER = r"""
 / /_/ // /_/ // /___  / /_/ /
 \____//_.___/ \____/  \____/[/bold red]
 [bold white]        Honeypot & Intrusion Logger[/bold white]
-[dim]        by GYRO-XD -- authorized defensive use only[/dim]
+[dim]        Premium Version - by GYRO-XD[/dim]
 """
 
 
@@ -63,7 +55,6 @@ async def main_async(config: dict, show_dashboard: bool):
         backup_count=log_cfg.get("backup_count", 5)
     )
 
-    # FIXED: GeoIP initialization without cache_size
     geo_cfg = config["geoip"]
     geoip_resolver = GeoIPResolver(
         provider_url=geo_cfg["provider_url"],
@@ -73,26 +64,18 @@ async def main_async(config: dict, show_dashboard: bool):
     tg_cfg = config["telegram"]
     notifier = TelegramNotifier(
         tg_cfg["bot_token"], 
-        tg_cfg["chat_id"],
-        enabled=tg_cfg["enabled"], 
-        rate_limit_seconds=tg_cfg.get("rate_limit_seconds", 30),
-        include_credentials=tg_cfg.get("include_credentials", True)
+        tg_cfg["admin_chat_id"],
+        enabled=True, 
+        rate_limit_seconds=tg_cfg.get("rate_limit_seconds", 30)
     )
-    
-    if tg_cfg["enabled"] and ("PUT_YOUR" in tg_cfg["bot_token"] or not tg_cfg["bot_token"]):
-        rprint("[bold yellow]Warning:[/bold yellow] Telegram is enabled but bot_token looks unset. "
-               "See README for setup. Disabling alerts for this run.")
-        notifier.enabled = False
 
     dashboard_state: dict = {}
     servers = []
     
-    # Get configuration sections
     security_cfg = config.get("security", {})
     web_cfg = config.get("web", {"template_dir": "templates"})
     perf_cfg = config.get("performance", {})
     
-    # Create template directory if it doesn't exist
     template_dir = Path(web_cfg.get("template_dir", "templates"))
     template_dir.mkdir(exist_ok=True)
 
@@ -102,7 +85,6 @@ async def main_async(config: dict, show_dashboard: bool):
         
         try:
             if service_type == "http":
-                # HTTP service with template support
                 service = HoneypotService(
                     name=svc["name"], 
                     port=svc["port"], 
@@ -117,7 +99,6 @@ async def main_async(config: dict, show_dashboard: bool):
                     performance_config=perf_cfg
                 )
             else:
-                # TCP service (SSH, Telnet, FTP)
                 service = HoneypotService(
                     name=svc["name"], 
                     port=svc["port"], 
@@ -133,12 +114,10 @@ async def main_async(config: dict, show_dashboard: bool):
             server = await service.start()
             servers.append(server)
             
-            # Display appropriate startup message
             if service_type == "http":
-                rprint(f"[green]✓[/green] Fake [bold]{svc['name']}[/bold] HTTP service listening on port [bold]{svc['port']}[/bold]")
-                rprint(f"[dim]   → Template: {svc.get('template', 'default')}[/dim]")
+                rprint(f"[green]✓[/green] Fake [bold]{svc['name']}[/bold] HTTP service on port [bold]{svc['port']}[/bold]")
             else:
-                rprint(f"[green]✓[/green] Fake [bold]{svc['name']}[/bold] service listening on port [bold]{svc['port']}[/bold]")
+                rprint(f"[green]✓[/green] Fake [bold]{svc['name']}[/bold] service on port [bold]{svc['port']}[/bold]")
                 
         except OSError as e:
             rprint(f"[bold red]✗[/bold red] Could not bind port {svc['port']} for {svc['name']}: {e}")
@@ -149,20 +128,10 @@ async def main_async(config: dict, show_dashboard: bool):
         rprint("[bold red]No services could be started. Exiting.[/bold red]")
         return
 
-    # Display startup information
     rprint("\n[dim]Logging to: " + f"{log_cfg['log_dir']}/{log_cfg['log_file']}" + "[/dim]")
-    
-    if security_cfg.get("max_connections_per_ip"):
-        rprint(f"[dim]Max connections per IP: {security_cfg['max_connections_per_ip']}[/dim]")
-    
-    if tg_cfg["enabled"] and notifier.enabled:
-        rprint("[green]✓[/green] Telegram alerts [bold green]enabled[/bold green]")
-    else:
-        rprint("[dim]Telegram alerts disabled[/dim]")
-    
+    rprint("[green]✓[/green] Telegram alerts [bold green]enabled[/bold green]")
     rprint("[dim]Press Ctrl+C to stop.[/dim]\n")
 
-    # Create tasks
     tasks = [asyncio.create_task(s.serve_forever()) for s in servers]
 
     if show_dashboard:
@@ -170,9 +139,7 @@ async def main_async(config: dict, show_dashboard: bool):
         dashboard = Dashboard(
             dashboard_state, 
             dash_cfg.get("refresh_seconds", 2), 
-            dash_cfg.get("max_rows", 20),
-            show_credentials=dash_cfg.get("show_credentials", True),
-            colors=dash_cfg.get("colors", {})
+            dash_cfg.get("max_rows", 20)
         )
         tasks.append(asyncio.create_task(dashboard.run()))
 
@@ -180,25 +147,13 @@ async def main_async(config: dict, show_dashboard: bool):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="GYRO Honeypot - Termux-friendly intrusion logger",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python honeypot.py                    # Run with default config
-  python honeypot.py --config custom.json  # Use custom config
-  python honeypot.py --no-dashboard     # Run headless (for tmux/nohup)
-  python honeypot.py --help             # Show this help message
-        """
-    )
-    parser.add_argument("--config", default="config.json", help="Path to config JSON file (default: config.json)")
-    parser.add_argument("--no-dashboard", action="store_true", help="Run headless, no live table (good for background/tmux use)")
-    parser.add_argument("--version", action="version", version="GYRO Honeypot v1.0")
+    parser = argparse.ArgumentParser(description="GYRO Honeypot Premium")
+    parser.add_argument("--config", default="config.json", help="Path to config JSON file")
+    parser.add_argument("--no-dashboard", action="store_true", help="Run headless")
     args = parser.parse_args()
 
     config = load_config(args.config)
     
-    # Validate config
     if not config.get("services"):
         rprint("[bold red]Error: No services defined in config.json[/bold red]")
         sys.exit(1)
