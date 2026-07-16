@@ -1,49 +1,99 @@
 """
-IP geolocation for GYRO Honeypot.
-Uses ip-api.com (free tier, no key required, 45 req/min limit).
-Caches results per-IP so a repeat attacker doesn't burn your rate limit.
+IP geolocation resolver for GYRO Honeypot.
+Uses ip-api.com (free) with caching to avoid rate limits.
 """
 
-import aiohttp
 import asyncio
+import aiohttp
+import json
+from datetime import datetime, timedelta
+from typing import Optional, Dict
 
 
 class GeoIPResolver:
     def __init__(self, provider_url: str, enabled: bool = True):
+        """
+        Initialize the GeoIP resolver.
+        
+        Args:
+            provider_url: URL template with {ip} placeholder
+            enabled: Whether geoip is enabled
+        """
         self.provider_url = provider_url
         self.enabled = enabled
-        self._cache = {}
+        self.cache = {}
+        self.cache_ttl = timedelta(hours=24)  # Cache for 24 hours
         self._lock = asyncio.Lock()
 
-    async def resolve(self, ip: str) -> dict:
+    async def resolve(self, ip: str) -> Dict[str, str]:
+        """
+        Resolve IP to geolocation data.
+        
+        Args:
+            ip: IP address to resolve
+            
+        Returns:
+            Dictionary with country, city, isp fields
+        """
         if not self.enabled:
-            return {"country": "N/A", "city": "N/A", "isp": "N/A"}
+            return {"country": "Unknown", "city": "Unknown", "isp": "Unknown"}
 
-        # Skip lookups for local/private addresses, they'll always fail anyway
-        if ip.startswith(("127.", "10.", "192.168.")) or ip.startswith("172."):
-            return {"country": "Local/Private", "city": "-", "isp": "-"}
-
+        # Check cache first
         async with self._lock:
-            if ip in self._cache:
-                return self._cache[ip]
+            if ip in self.cache:
+                cached_data, timestamp = self.cache[ip]
+                if datetime.now() - timestamp < self.cache_ttl:
+                    return cached_data
 
-        result = {"country": "Unknown", "city": "Unknown", "isp": "Unknown"}
         try:
             url = self.provider_url.format(ip=ip)
-            timeout = aiohttp.ClientTimeout(total=5)
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.get(url) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        if data.get("status") == "success":
-                            result = {
-                                "country": data.get("country", "Unknown"),
-                                "city": data.get("city", "Unknown"),
-                                "isp": data.get("isp", "Unknown"),
-                            }
-        except (asyncio.TimeoutError, aiohttp.ClientError):
-            pass  # geolocation is best-effort; never let it break the honeypot
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=10) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        
+                        # Parse response
+                        geo_data = {
+                            "country": data.get("country", "Unknown"),
+                            "city": data.get("city", "Unknown"),
+                            "isp": data.get("isp", "Unknown"),
+                            "region": data.get("regionName", "Unknown"),
+                            "status": data.get("status", "Unknown")
+                        }
+                        
+                        # Cache the result
+                        async with self._lock:
+                            self.cache[ip] = (geo_data, datetime.now())
+                        
+                        return geo_data
+                    else:
+                        return {"country": "Unknown", "city": "Unknown", "isp": "Unknown"}
+        except Exception as e:
+            print(f"[GeoIP Error] Failed to resolve {ip}: {e}")
+            return {"country": "Unknown", "city": "Unknown", "isp": "Unknown"}
 
-        async with self._lock:
-            self._cache[ip] = result
-        return result
+    async def resolve_batch(self, ips: list) -> Dict[str, Dict[str, str]]:
+        """
+        Resolve multiple IPs in batch.
+        
+        Args:
+            ips: List of IP addresses
+            
+        Returns:
+            Dictionary mapping IP to geolocation data
+        """
+        results = {}
+        for ip in ips:
+            results[ip] = await self.resolve(ip)
+        return results
+
+    def clear_cache(self):
+        """Clear the geolocation cache."""
+        self.cache.clear()
+
+    def get_cache_stats(self) -> Dict[str, int]:
+        """Get cache statistics."""
+        return {
+            "size": len(self.cache),
+            "entries": len(self.cache)
+        }
