@@ -41,19 +41,19 @@ class TelegramNotifier:
         isp = geo.get("isp", "Unknown")
         
         message = (
-            f" Honeypot Alert\n\n"
-            f" IP: {ip}\n"
-            f" Location: {country}, {city}\n"
-            f" ISP: {isp}\n"
-            f" Service: {service} (Port {port})\n"
-            f" Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"🔔 Honeypot Alert\n\n"
+            f"🌐 IP: {ip}\n"
+            f"📍 Location: {country}, {city}\n"
+            f"🏢 ISP: {isp}\n"
+            f"🔌 Service: {service} (Port {port})\n"
+            f"⏰ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
         )
         
         if extra:
             # Truncate extra if it's too long
             if len(extra) > 500:
                 extra = extra[:500] + "..."
-            message += f"\n Data:\n{extra}"
+            message += f"\n📝 Data:\n{extra}"
 
         await self._send_message(message)
 
@@ -78,16 +78,17 @@ class TelegramNotifier:
         city = geo.get("city", "Unknown")
         isp = geo.get("isp", "Unknown")
         
-        creds_str = "\n".join([f"� {k}: {v}" for k, v in credentials.items()])
+        # FIXED: Using proper bullet points
+        creds_str = "\n".join([f"• {k}: {v}" for k, v in credentials.items()])
         
         message = (
-            f" CREDENTIALS CAPTURED!\n\n"
-            f" IP: {ip}\n"
-            f" Location: {country}, {city}\n"
-            f" ISP: {isp}\n"
-            f" Service: {service} (Port {port})\n"
-            f" Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-            f" Credentials:\n{creds_str}"
+            f"🔐 CREDENTIALS CAPTURED!\n\n"
+            f"🌐 IP: {ip}\n"
+            f"📍 Location: {country}, {city}\n"
+            f"🏢 ISP: {isp}\n"
+            f"🔌 Service: {service} (Port {port})\n"
+            f"⏰ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+            f"📝 Credentials:\n{creds_str}"
         )
         
         await self._send_message(message)
