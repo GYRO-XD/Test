@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-GYRO Honeypot Premium - Advanced Telegram Bot Controller 
+GYRO Honeypot Premium - Advanced Telegram Bot Controller
 """
 
 import json
@@ -549,13 +549,9 @@ def main():
         print(f"💳 Price: {CONFIG['premium']['price']}")
         print("\nPress Ctrl+C to stop...")
         
-        # Start bot with longer timeout
+        # Start bot - removed unsupported arguments
         application.run_polling(
             allowed_updates=Update.ALL_TYPES,
-            timeout=30,
-            read_timeout=30,
-            write_timeout=30,
-            pool_timeout=30,
             drop_pending_updates=True
         )
         
