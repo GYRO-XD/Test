@@ -68,7 +68,13 @@ class PremiumHoneypotBot:
     
     async def activate_user(self, chat_id: str, username: str, password: str) -> bool:
         """Activate premium user."""
-        if password not in self.used_passwords and password == PREMIUM_PASSWORD:
+        # Debug: Print what we're comparing
+        print(f"🔍 Debug: Comparing password: '{password}'")
+        print(f"🔍 Debug: Against: '{PREMIUM_PASSWORD}'")
+        print(f"🔍 Debug: Used passwords: {self.used_passwords}")
+        
+        # Check if password matches AND hasn't been used before
+        if password == PREMIUM_PASSWORD and password not in self.used_passwords:
             self.premium_users[chat_id] = {
                 'chat_id': chat_id,
                 'username': username,
@@ -81,7 +87,15 @@ class PremiumHoneypotBot:
             }
             self.used_passwords.append(password)
             self.save_premium_config()
+            print(f"✅ User {username} activated successfully!")
             return True
+        
+        # If password matches but already used
+        if password == PREMIUM_PASSWORD and password in self.used_passwords:
+            print(f"⚠️ Password already used by someone else")
+            return False
+        
+        print(f"❌ Invalid password attempt")
         return False
 
 # Initialize bot
@@ -465,13 +479,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode='Markdown'
             )
         else:
-            await update.message.reply_text(
-                "❌ **Invalid Password!**\n\n"
-                "The password you entered is not valid.\n"
-                "Please check and try again.\n\n"
-                "💳 Contact @mrgyroxd if you need help.",
-                parse_mode='Markdown'
-            )
+            # Check if password was already used
+            if message == PREMIUM_PASSWORD:
+                await update.message.reply_text(
+                    "❌ **Password Already Used!**\n\n"
+                    "This password has already been used by someone else.\n"
+                    "Please contact @mrgyroxd for a new password.",
+                    parse_mode='Markdown'
+                )
+            else:
+                await update.message.reply_text(
+                    "❌ **Invalid Password!**\n\n"
+                    "The password you entered is not valid.\n"
+                    "Please check and try again.\n\n"
+                    f"💳 Contact @mrgyroxd if you need help.",
+                    parse_mode='Markdown'
+                )
     
     elif state == 'awaiting_custom_link':
         # Generate custom link
@@ -515,6 +538,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         with open('config.json', 'w') as f:
             json.dump(CONFIG, f, indent=2)
         
+        # Reset used passwords if changing password
+        bot.used_passwords = []
+        bot.save_premium_config()
+        
         context.user_data['state'] = None
         await update.message.reply_text(
             f"✅ **Premium Password Changed!**\n\n"
@@ -549,7 +576,7 @@ def main():
         print(f"💳 Price: {CONFIG['premium']['price']}")
         print("\nPress Ctrl+C to stop...")
         
-        # Start bot - removed unsupported arguments
+        # Start bot
         application.run_polling(
             allowed_updates=Update.ALL_TYPES,
             drop_pending_updates=True
@@ -561,8 +588,6 @@ def main():
         print("1. Bot token is correct")
         print("2. Chat ID is correct")
         print("3. Internet connection is working")
-        print("\nIf you're on mobile data, try switching to WiFi.")
-        print("If you're using VPN, try disabling it.")
 
 if __name__ == "__main__":
     main()
