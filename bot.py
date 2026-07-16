@@ -1,4 +1,9 @@
+cd ~/Test
 
+# Backup old bot.py
+cp bot.py bot.py.backup
+
+cat > bot.py << 'EOF'
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -559,5 +564,4 @@ if __name__ == "__main__":
     main()
 EOF
 
-# Run the fixed bot
 python bot.py
