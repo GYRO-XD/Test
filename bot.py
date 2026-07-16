@@ -10,6 +10,7 @@ import logging
 import subprocess
 from datetime import datetime
 import asyncio
+import os
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
@@ -45,12 +46,17 @@ class PremiumHoneypotBot:
         
     def save_premium_config(self):
         """Save premium config to file."""
-        with open('premium_config.json', 'w') as f:
-            json.dump({
-                'premium_users': self.premium_users,
-                'pending_users': self.pending_users,
-                'used_passwords': self.used_passwords
-            }, f, indent=2)
+        try:
+            with open('premium_config.json', 'w') as f:
+                json.dump({
+                    'premium_users': self.premium_users,
+                    'pending_users': self.pending_users,
+                    'used_passwords': self.used_passwords
+                }, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"❌ Error saving config: {e}")
+            return False
     
     def is_premium_user(self, chat_id: str) -> bool:
         """Check if user is premium."""
@@ -68,7 +74,7 @@ class PremiumHoneypotBot:
     
     async def activate_user(self, chat_id: str, username: str, password: str) -> bool:
         """Activate premium user."""
-        # Debug: Print what we're comparing
+        # Debug output
         print(f"🔍 Debug: Comparing password: '{password}'")
         print(f"🔍 Debug: Against: '{PREMIUM_PASSWORD}'")
         print(f"🔍 Debug: Used passwords: {self.used_passwords}")
@@ -530,7 +536,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("❌ Admin only.")
             return
         
-        # Update premium password
+        # FIXED: Global declaration at the top of the block
         global PREMIUM_PASSWORD
         PREMIUM_PASSWORD = message
         CONFIG['premium']['password'] = message
@@ -588,6 +594,8 @@ def main():
         print("1. Bot token is correct")
         print("2. Chat ID is correct")
         print("3. Internet connection is working")
+        print("\nIf you're on mobile data, try switching to WiFi.")
+        print("If you're using VPN, try disabling it.")
 
 if __name__ == "__main__":
     main()
