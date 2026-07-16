@@ -11,18 +11,21 @@ from typing import Optional, Dict
 
 
 class GeoIPResolver:
-    def __init__(self, provider_url: str, enabled: bool = True):
+    def __init__(self, provider_url: str, enabled: bool = True, cache_size: int = 1000, cache_ttl: int = 86400):
         """
         Initialize the GeoIP resolver.
         
         Args:
             provider_url: URL template with {ip} placeholder
             enabled: Whether geoip is enabled
+            cache_size: Maximum number of entries in cache (ignored, kept for compatibility)
+            cache_ttl: Cache TTL in seconds
         """
         self.provider_url = provider_url
         self.enabled = enabled
         self.cache = {}
-        self.cache_ttl = timedelta(hours=24)  # Cache for 24 hours
+        self.cache_ttl = timedelta(seconds=cache_ttl)
+        self.max_cache_size = cache_size
         self._lock = asyncio.Lock()
 
     async def resolve(self, ip: str) -> Dict[str, str]:
@@ -63,6 +66,10 @@ class GeoIPResolver:
                         
                         # Cache the result
                         async with self._lock:
+                            # If cache is too large, remove oldest entry
+                            if len(self.cache) >= self.max_cache_size:
+                                oldest_key = next(iter(self.cache))
+                                del self.cache[oldest_key]
                             self.cache[ip] = (geo_data, datetime.now())
                         
                         return geo_data
@@ -95,5 +102,6 @@ class GeoIPResolver:
         """Get cache statistics."""
         return {
             "size": len(self.cache),
+            "max_size": self.max_cache_size,
             "entries": len(self.cache)
         }
