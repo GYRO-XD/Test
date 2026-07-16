@@ -115,7 +115,9 @@ async def main_async(config: dict, show_dashboard: bool):
             servers.append(server)
             
             if service_type == "http":
+                domain = svc.get("domain", svc["name"].lower() + ".com")
                 rprint(f"[green]✓[/green] Fake [bold]{svc['name']}[/bold] HTTP service on port [bold]{svc['port']}[/bold]")
+                rprint(f"[dim]   → Domain: {domain}[/dim]")
             else:
                 rprint(f"[green]✓[/green] Fake [bold]{svc['name']}[/bold] service on port [bold]{svc['port']}[/bold]")
                 
