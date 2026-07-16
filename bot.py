@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-GYRO Honeypot Premium - Advanced Telegram Bot Controller
+GYRO Honeypot Premium - Advanced X Telegram Bot Controller 
 """
 
 import json
