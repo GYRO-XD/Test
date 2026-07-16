@@ -1,0 +1,15 @@
+{
+  "premium_users": {
+    "YOUR_ADMIN_CHAT_ID_HERE": {
+      "chat_id": "YOUR_ADMIN_CHAT_ID_HERE",
+      "username": "admin",
+      "activated": true,
+      "activated_at": "2026-07-16T19:00:00",
+      "is_admin": true,
+      "templates": ["tiktok", "instagram", "facebook", "snapchat", "twitter", "linkedin", "github", "spotify", "netflix", "reddit"],
+      "custom_links": {}
+    }
+  },
+  "pending_users": {},
+  "used_passwords": ["PH4NTOM|N3XUS|V01D|X9Q|KRYPT"]
+}
