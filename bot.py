@@ -24,39 +24,69 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load configs
-with open('config.json', 'r') as f:
-    CONFIG = json.load(f)
+def load_config():
+    with open('config.json', 'r') as f:
+        return json.load(f)
 
-with open('premium_config.json', 'r') as f:
-    PREMIUM_CONFIG = json.load(f)
+def load_premium_config():
+    with open('premium_config.json', 'r') as f:
+        return json.load(f)
+
+def save_premium_config(data):
+    with open('premium_config.json', 'w') as f:
+        json.dump(data, f, indent=2)
+
+def save_config(data):
+    with open('config.json', 'w') as f:
+        json.dump(data, f, indent=2)
+
+CONFIG = load_config()
+PREMIUM_CONFIG = load_premium_config()
 
 # Constants
 ADMIN_CHAT_ID = CONFIG['telegram']['admin_chat_id']
 BOT_TOKEN = CONFIG['telegram']['bot_token']
-PREMIUM_PASSWORD = CONFIG['premium']['password']
 BASE_URL = "https://your-domain.com"  # CHANGE THIS TO YOUR DOMAIN
 
 class PremiumHoneypotBot:
     def __init__(self):
-        self.premium_users = PREMIUM_CONFIG.get('premium_users', {})
-        self.pending_users = PREMIUM_CONFIG.get('pending_users', {})
-        self.used_passwords = PREMIUM_CONFIG.get('used_passwords', [])
+        self.config = load_config()
+        self.premium_config = load_premium_config()
+        self.premium_users = self.premium_config.get('premium_users', {})
+        self.pending_users = self.premium_config.get('pending_users', {})
+        self.used_passwords = self.premium_config.get('used_passwords', [])
         self.honeypot_process = None
         self.is_running = False
         
     def save_premium_config(self):
         """Save premium config to file."""
         try:
-            with open('premium_config.json', 'w') as f:
-                json.dump({
-                    'premium_users': self.premium_users,
-                    'pending_users': self.pending_users,
-                    'used_passwords': self.used_passwords
-                }, f, indent=2)
+            self.premium_config['premium_users'] = self.premium_users
+            self.premium_config['pending_users'] = self.pending_users
+            self.premium_config['used_passwords'] = self.used_passwords
+            save_premium_config(self.premium_config)
             return True
         except Exception as e:
             print(f"❌ Error saving config: {e}")
             return False
+    
+    def save_config(self):
+        """Save main config to file."""
+        try:
+            save_config(self.config)
+            return True
+        except Exception as e:
+            print(f"❌ Error saving config: {e}")
+            return False
+    
+    def get_premium_password(self):
+        """Get current premium password from config."""
+        return self.config.get('premium', {}).get('password', '')
+    
+    def set_premium_password(self, new_password):
+        """Set new premium password in config."""
+        self.config['premium']['password'] = new_password
+        return self.save_config()
     
     def is_premium_user(self, chat_id: str) -> bool:
         """Check if user is premium."""
@@ -74,13 +104,15 @@ class PremiumHoneypotBot:
     
     async def activate_user(self, chat_id: str, username: str, password: str) -> bool:
         """Activate premium user."""
+        current_password = self.get_premium_password()
+        
         # Debug output
         print(f"🔍 Debug: Comparing password: '{password}'")
-        print(f"🔍 Debug: Against: '{PREMIUM_PASSWORD}'")
+        print(f"🔍 Debug: Against: '{current_password}'")
         print(f"🔍 Debug: Used passwords: {self.used_passwords}")
         
         # Check if password matches AND hasn't been used before
-        if password == PREMIUM_PASSWORD and password not in self.used_passwords:
+        if password == current_password and password not in self.used_passwords:
             self.premium_users[chat_id] = {
                 'chat_id': chat_id,
                 'username': username,
@@ -97,7 +129,7 @@ class PremiumHoneypotBot:
             return True
         
         # If password matches but already used
-        if password == PREMIUM_PASSWORD and password in self.used_passwords:
+        if password == current_password and password in self.used_passwords:
             print(f"⚠️ Password already used by someone else")
             return False
         
@@ -475,6 +507,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     state = context.user_data.get('state')
     
     if state == 'awaiting_password':
+        # Get current password from config
+        current_password = bot.get_premium_password()
+        
         # Check premium password
         if await bot.activate_user(chat_id, update.effective_user.username or "User", message):
             context.user_data['state'] = None
@@ -486,7 +521,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         else:
             # Check if password was already used
-            if message == PREMIUM_PASSWORD:
+            if message == current_password:
                 await update.message.reply_text(
                     "❌ **Password Already Used!**\n\n"
                     "This password has already been used by someone else.\n"
@@ -536,25 +571,25 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("❌ Admin only.")
             return
         
-        # FIXED: Global declaration at the top of the block
-        global PREMIUM_PASSWORD
-        PREMIUM_PASSWORD = message
-        CONFIG['premium']['password'] = message
-        
-        with open('config.json', 'w') as f:
-            json.dump(CONFIG, f, indent=2)
-        
-        # Reset used passwords if changing password
-        bot.used_passwords = []
-        bot.save_premium_config()
-        
-        context.user_data['state'] = None
-        await update.message.reply_text(
-            f"✅ **Premium Password Changed!**\n\n"
-            f"New password: `{message}`\n\n"
-            f"This password will now be used for all new users.",
-            parse_mode='Markdown'
-        )
+        # Set new password using the class method (no global needed)
+        if bot.set_premium_password(message):
+            # Reset used passwords when changing password
+            bot.used_passwords = []
+            bot.save_premium_config()
+            
+            context.user_data['state'] = None
+            await update.message.reply_text(
+                f"✅ **Premium Password Changed!**\n\n"
+                f"New password: `{message}`\n\n"
+                f"This password will now be used for all new users.",
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text(
+                "❌ **Error!**\n\n"
+                "Failed to change password. Please try again.",
+                parse_mode='Markdown'
+            )
 
 def main():
     """Main entry point."""
@@ -578,7 +613,7 @@ def main():
         
         print(f"🤖 GYRO Honeypot Premium Bot Started!")
         print(f"👑 Admin: {ADMIN_CHAT_ID}")
-        print(f"🔐 Premium Password: {PREMIUM_PASSWORD}")
+        print(f"🔐 Premium Password: {bot.get_premium_password()}")
         print(f"💳 Price: {CONFIG['premium']['price']}")
         print("\nPress Ctrl+C to stop...")
         
