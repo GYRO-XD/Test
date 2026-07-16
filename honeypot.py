@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 GYRO Honeypot
 A lightweight, Termux-friendly honeypot: fake services, connection logging,
@@ -61,12 +63,11 @@ async def main_async(config: dict, show_dashboard: bool):
         backup_count=log_cfg.get("backup_count", 5)
     )
 
+    # FIXED: GeoIP initialization without cache_size
     geo_cfg = config["geoip"]
     geoip_resolver = GeoIPResolver(
-        geo_cfg["provider_url"], 
-        geo_cfg["enabled"],
-        cache_size=geo_cfg.get("cache_size", 1000),
-        cache_ttl=geo_cfg.get("cache_ttl_seconds", 86400)
+        provider_url=geo_cfg["provider_url"],
+        enabled=geo_cfg["enabled"]
     )
 
     tg_cfg = config["telegram"]
