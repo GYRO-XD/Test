@@ -1,9 +1,3 @@
-cd /Test
-
-# Backup old bot.py
-cp bot.py bot.py.backup
-
-cat > bot.py << 'EOF'
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -11,15 +5,10 @@ cat > bot.py << 'EOF'
 GYRO Honeypot Premium - Advanced Telegram Bot Controller
 """
 
-import asyncio
 import json
 import logging
-import os
 import subprocess
-import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, Optional
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
@@ -562,6 +551,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-EOF
-
-python bot.py
