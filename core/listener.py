@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 Fake service listeners for GYRO Honeypot.
 Each listener speaks just enough of a protocol to look real, captures
@@ -486,13 +489,13 @@ class HoneypotService:
         priority = "🔴" if has_password else "🟡"
         
         alert_msg = (
-            f"{priority} [bold]CREDENTIALS CAPTURED![/bold]\n\n"
-            f"🌐 IP: {ip}\n"
-            f"📍 Location: {geo.get('country', 'Unknown')}, {geo.get('city', 'Unknown')}\n"
-            f"🏢 ISP: {geo.get('isp', 'Unknown')}\n"
-            f"🔌 Service: {self.name} (Port {self.port})\n"
-            f"⏰ Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-            f"📝 Credentials:\n{creds_str}"
+            f"{priority} CREDENTIALS CAPTURED!\n\n"
+            f"IP: {ip}\n"
+            f"Location: {geo.get('country', 'Unknown')}, {geo.get('city', 'Unknown')}\n"
+            f"ISP: {geo.get('isp', 'Unknown')}\n"
+            f"Service: {self.name} (Port {self.port})\n"
+            f"Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+            f"Credentials:\n{creds_str}"
         )
         
         # Send to Telegram
@@ -500,7 +503,7 @@ class HoneypotService:
         
         # Also print to console for immediate visibility
         print(f"\n{'='*60}")
-        print(f"🔐 CREDENTIALS CAPTURED from {ip}")
+        print(f"CREDENTIALS CAPTURED from {ip}")
         print(f"{'='*60}")
         for key, value in login_data.items():
             print(f"  {key}: {value}")
