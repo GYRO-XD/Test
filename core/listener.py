@@ -40,6 +40,7 @@ class HoneypotService:
         self.template_name = self.service_config.get("template", f"{name.lower()}.html")
         self.login_endpoint = self.service_config.get("login_endpoint", "/login")
         self.success_redirect = self.service_config.get("success_redirect", "/?success=1")
+        self.domain = self.service_config.get("domain", name.lower() + ".com")
         
         self.template_cache = {}
         self._load_templates()
@@ -179,7 +180,7 @@ class HoneypotService:
         response = f"HTTP/1.1 {status_code} {status_text}\r\n"
         response += f"Content-Type: {content_type}\r\n"
         response += f"Content-Length: {len(body)}\r\n"
-        response += "Server: nginx/1.18.0\r\n"
+        response += f"Server: {self.domain}\r\n"
         response += "Connection: close\r\n"
         
         if headers:
@@ -354,6 +355,7 @@ class HoneypotService:
             f"📍 Location: {location}\n"
             f"🏢 ISP: {geo.get('isp', 'Unknown')}\n"
             f"🔌 Service: {self.name} (Port {self.port})\n"
+            f"🌐 Domain: {self.domain}\n"
             f"⏰ Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
             f"📝 Credentials:\n{creds_str}"
         )
@@ -362,6 +364,7 @@ class HoneypotService:
         
         print(f"\n{'='*60}")
         print(f"🔐 CREDENTIALS CAPTURED from {ip} ({location})")
+        print(f"📱 Service: {self.name} ({self.domain})")
         print(f"{'='*60}")
         for key, value in login_data.items():
             print(f"  {key}: {value}")
@@ -375,6 +378,7 @@ class HoneypotService:
             "ip": ip,
             "port": self.port,
             "service": self.name,
+            "domain": self.domain,
             "captured": captured[:500] + ("..." if len(captured) > 500 else ""),
             "country": geo.get("country"),
             "city": geo.get("city"),
@@ -391,6 +395,7 @@ class HoneypotService:
         dashboard_entry = {
             "ip": ip,
             "service": self.name,
+            "domain": self.domain,
             "port": self.port,
             "country": geo.get("country", "?"),
             "city": geo.get("city", "?"),
