@@ -58,8 +58,6 @@
   "geoip": {
     "enabled": true,
     "provider_url": "http://ip-api.com/json/{ip}?fields=status,country,regionName,city,isp,query",
-    "cache_size": 1000,
-    "cache_ttl_seconds": 86400
   },
   "telegram": {
     "enabled": false,
