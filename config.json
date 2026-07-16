@@ -1,96 +1,29 @@
 {
   "services": [
-    {
-      "name": "SSH",
-      "port": 2222,
-      "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3\r\n",
-      "type": "tcp"
-    },
-    {
-      "name": "Telnet",
-      "port": 2323,
-      "banner": "Ubuntu 20.04 LTS\r\nlogin: ",
-      "type": "tcp"
-    },
-    {
-      "name": "FTP",
-      "port": 2121,
-      "banner": "220 (vsFTPd 3.0.5)\r\n",
-      "type": "tcp"
-    },
-    {
-      "name": "TikTok",
-      "port": 8080,
-      "banner": null,
-      "type": "http",
-      "template": "tiktok.html",
-      "login_endpoint": "/login",
-      "success_redirect": "/?success=1"
-    },
-    {
-      "name": "Instagram",
-      "port": 8081,
-      "banner": null,
-      "type": "http",
-      "template": "instagram.html",
-      "login_endpoint": "/login",
-      "success_redirect": "/?success=1"
-    },
-    {
-      "name": "Facebook",
-      "port": 8082,
-      "banner": null,
-      "type": "http",
-      "template": "facebook.html",
-      "login_endpoint": "/login",
-      "success_redirect": "/?success=1"
-    },
-    {
-      "name": "Snapchat",
-      "port": 8083,
-      "banner": null,
-      "type": "http",
-      "template": "snapchat.html",
-      "login_endpoint": "/login",
-      "success_redirect": "/?success=1"
-    }
+    {"name": "SSH", "port": 2222, "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3\r\n", "type": "tcp"},
+    {"name": "Telnet", "port": 2323, "banner": "Ubuntu 20.04 LTS\r\nlogin: ", "type": "tcp"},
+    {"name": "FTP", "port": 2121, "banner": "220 (vsFTPd 3.0.5)\r\n", "type": "tcp"}
   ],
   "geoip": {
     "enabled": true,
-    "provider_url": "http://ip-api.com/json/{ip}?fields=status,country,regionName,city,isp,query",
+    "provider_url": "http://ip-api.com/json/{ip}?fields=status,country,regionName,city,isp,query"
   },
   "telegram": {
-    "enabled": false,
-    "bot_token": "PUT_YOUR_BOT_TOKEN_HERE",
-    "chat_id": "PUT_YOUR_CHAT_ID_HERE",
-    "rate_limit_seconds": 30,
-    "include_credentials": true
+    "bot_token": "YOUR_BOT_TOKEN_HERE",
+    "admin_chat_id": "YOUR_ADMIN_CHAT_ID_HERE",
+    "rate_limit_seconds": 30
+  },
+  "premium": {
+    "password": "PH4NTOM|N3XUS|V01D|X9Q|KRYPT",
+    "price": "$15",
+    "payment_info": "Contact @mrgyroxd or WhatsApp: https://wa.me/2348164404128"
   },
   "dashboard": {
     "refresh_seconds": 2,
-    "max_rows": 20,
-    "show_credentials": true
+    "max_rows": 20
   },
   "logging": {
     "log_dir": "logs",
-    "log_file": "events.jsonl",
-    "max_file_size_mb": 100,
-    "backup_count": 5,
-    "log_level": "INFO"
-  },
-  "security": {
-    "max_connections_per_ip": 10,
-    "connection_timeout_seconds": 30,
-    "ban_threshold": 100,
-    "ban_duration_seconds": 3600
-  },
-  "web": {
-    "template_dir": "templates",
-    "static_dir": "static"
-  },
-  "performance": {
-    "max_concurrent_connections": 1000,
-    "socket_buffer_size": 4096,
-    "read_timeout_seconds": 10
+    "log_file": "events.jsonl"
   }
 }
