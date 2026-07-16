@@ -9,9 +9,11 @@ import json
 import logging
 import subprocess
 from datetime import datetime
+import asyncio
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
+from telegram.request import HTTPXRequest
 
 # Setup logging
 logging.basicConfig(
@@ -524,8 +526,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     """Main entry point."""
     try:
-        # Create application
-        application = Application.builder().token(BOT_TOKEN).build()
+        # Create custom request with longer timeouts
+        request = HTTPXRequest(
+            connect_timeout=30.0,
+            read_timeout=30.0,
+            write_timeout=30.0,
+            pool_timeout=30.0,
+        )
+        
+        # Create application with custom request
+        application = Application.builder().token(BOT_TOKEN).request(request).build()
         
         # Add handlers
         application.add_handler(CommandHandler("start", start))
@@ -539,8 +549,15 @@ def main():
         print(f"💳 Price: {CONFIG['premium']['price']}")
         print("\nPress Ctrl+C to stop...")
         
-        # Start bot
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        # Start bot with longer timeout
+        application.run_polling(
+            allowed_updates=Update.ALL_TYPES,
+            timeout=30,
+            read_timeout=30,
+            write_timeout=30,
+            pool_timeout=30,
+            drop_pending_updates=True
+        )
         
     except Exception as e:
         print(f"❌ Error starting bot: {e}")
@@ -548,6 +565,8 @@ def main():
         print("1. Bot token is correct")
         print("2. Chat ID is correct")
         print("3. Internet connection is working")
+        print("\nIf you're on mobile data, try switching to WiFi.")
+        print("If you're using VPN, try disabling it.")
 
 if __name__ == "__main__":
     main()
