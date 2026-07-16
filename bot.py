@@ -1,4 +1,4 @@
-cd ~/Test
+cd /Test
 
 # Backup old bot.py
 cp bot.py bot.py.backup
