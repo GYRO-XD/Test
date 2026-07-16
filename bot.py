@@ -54,7 +54,6 @@ class PremiumHoneypotBot:
         self.premium_config = load_premium_config()
         self.premium_users = self.premium_config.get('premium_users', {})
         self.pending_users = self.premium_config.get('pending_users', {})
-        self.used_passwords = self.premium_config.get('used_passwords', [])
         self.honeypot_process = None
         self.is_running = False
         
@@ -63,7 +62,6 @@ class PremiumHoneypotBot:
         try:
             self.premium_config['premium_users'] = self.premium_users
             self.premium_config['pending_users'] = self.pending_users
-            self.premium_config['used_passwords'] = self.used_passwords
             save_premium_config(self.premium_config)
             return True
         except Exception as e:
@@ -109,10 +107,15 @@ class PremiumHoneypotBot:
         # Debug output
         print(f"🔍 Debug: Comparing password: '{password}'")
         print(f"🔍 Debug: Against: '{current_password}'")
-        print(f"🔍 Debug: Used passwords: {self.used_passwords}")
         
-        # Check if password matches AND hasn't been used before
-        if password == current_password and password not in self.used_passwords:
+        # Check if password matches - REMOVED used_passwords check
+        if password == current_password:
+            # Check if user already exists
+            if chat_id in self.premium_users:
+                print(f"ℹ️ User {username} already has premium access")
+                return True
+            
+            # Activate user
             self.premium_users[chat_id] = {
                 'chat_id': chat_id,
                 'username': username,
@@ -123,15 +126,9 @@ class PremiumHoneypotBot:
                              'github', 'spotify', 'netflix', 'reddit'],
                 'custom_links': {}
             }
-            self.used_passwords.append(password)
             self.save_premium_config()
             print(f"✅ User {username} activated successfully!")
             return True
-        
-        # If password matches but already used
-        if password == current_password and password in self.used_passwords:
-            print(f"⚠️ Password already used by someone else")
-            return False
         
         print(f"❌ Invalid password attempt")
         return False
@@ -507,9 +504,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     state = context.user_data.get('state')
     
     if state == 'awaiting_password':
-        # Get current password from config
-        current_password = bot.get_premium_password()
-        
         # Check premium password
         if await bot.activate_user(chat_id, update.effective_user.username or "User", message):
             context.user_data['state'] = None
@@ -520,22 +514,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode='Markdown'
             )
         else:
-            # Check if password was already used
-            if message == current_password:
-                await update.message.reply_text(
-                    "❌ **Password Already Used!**\n\n"
-                    "This password has already been used by someone else.\n"
-                    "Please contact @mrgyroxd for a new password.",
-                    parse_mode='Markdown'
-                )
-            else:
-                await update.message.reply_text(
-                    "❌ **Invalid Password!**\n\n"
-                    "The password you entered is not valid.\n"
-                    "Please check and try again.\n\n"
-                    f"💳 Contact @mrgyroxd if you need help.",
-                    parse_mode='Markdown'
-                )
+            await update.message.reply_text(
+                "❌ **Invalid Password!**\n\n"
+                "The password you entered is not valid.\n"
+                "Please check and try again.\n\n"
+                f"💳 Contact @mrgyroxd if you need help.",
+                parse_mode='Markdown'
+            )
     
     elif state == 'awaiting_custom_link':
         # Generate custom link
@@ -573,10 +558,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         # Set new password using the class method (no global needed)
         if bot.set_premium_password(message):
-            # Reset used passwords when changing password
-            bot.used_passwords = []
-            bot.save_premium_config()
-            
             context.user_data['state'] = None
             await update.message.reply_text(
                 f"✅ **Premium Password Changed!**\n\n"
