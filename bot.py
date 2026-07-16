@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -528,24 +529,35 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     """Main entry point."""
-    # Create application
-    application = Application.builder().token(BOT_TOKEN).build()
-    
-    # Add handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", start))
-    application.add_handler(CallbackQueryHandler(button_callback))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    print(f"🤖 GYRO Honeypot Premium Bot Started!")
-    print(f"📱 Bot: @{application.bot.username}")
-    print(f"👑 Admin: {ADMIN_CHAT_ID}")
-    print(f"🔐 Premium Password: {PREMIUM_PASSWORD}")
-    print(f"💳 Price: {CONFIG['premium']['price']}")
-    print("\nPress Ctrl+C to stop...")
-    
-    # Start bot
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    try:
+        # Create application
+        application = Application.builder().token(BOT_TOKEN).build()
+        
+        # Add handlers
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", start))
+        application.add_handler(CallbackQueryHandler(button_callback))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        print(f"🤖 GYRO Honeypot Premium Bot Started!")
+        print(f"👑 Admin: {ADMIN_CHAT_ID}")
+        print(f"🔐 Premium Password: {PREMIUM_PASSWORD}")
+        print(f"💳 Price: {CONFIG['premium']['price']}")
+        print("\nPress Ctrl+C to stop...")
+        
+        # Start bot
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        
+    except Exception as e:
+        print(f"❌ Error starting bot: {e}")
+        print("\nCheck your config.json and make sure:")
+        print("1. Bot token is correct")
+        print("2. Chat ID is correct")
+        print("3. Internet connection is working")
 
 if __name__ == "__main__":
     main()
+EOF
+
+# Run the fixed bot
+python bot.py
